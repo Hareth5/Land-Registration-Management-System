@@ -7,12 +7,12 @@ export function renderStaff(container) {
   container.innerHTML = `
     <section class="page-grid">
       <article class="page-section span-7">
-        <div class="section-header"><div><h2>Create staff member</h2><p>Supports surveyors, registrars, and other departmental staff.</p></div></div>
+        <div class="section-header"><div><h2>Create staff</h2></div></div>
         <div class="section-body">
           ${formShell("staffForm", [
             field({ label: "Staff code", name: "staff_code", required: true }),
             field({ label: "Name", name: "name", required: true }),
-            field({ label: "Role", name: "role", options: ["surveyor", "registrar", "clerk", "admin"], required: true }),
+            field({ label: "Role", name: "role", options: ["surveyor", "registrar"], required: true }),
             field({ label: "Department", name: "department", required: true }),
             field({ label: "Skills", name: "skills", placeholder: "Comma-separated" }),
             field({ label: "Email", name: "email", type: "email", required: true }),
@@ -24,7 +24,7 @@ export function renderStaff(container) {
         </div>
       </article>
       <article class="page-section span-5">
-        <div class="section-header"><div><h2>Staff lookup</h2><p>GET /staff/{staff_id}</p></div></div>
+        <div class="section-header"><div><h2>Staff lookup</h2></div></div>
         <div class="section-body">
           <form id="staffLookupForm" class="form-grid">
             ${field({ label: "Staff Mongo ID", name: "staff_id", full: true, required: true })}
@@ -41,7 +41,8 @@ export function renderStaff(container) {
 
 async function createStaff(event) {
   event.preventDefault();
-  const raw = serializeForm(event.currentTarget);
+  const form = event.currentTarget;
+  const raw = serializeForm(form);
   const payload = {
     staff_code: raw.staff_code,
     name: raw.name,
@@ -56,7 +57,7 @@ async function createStaff(event) {
   try {
     const result = await staffApi.create(payload);
     notify(`Staff created: ${result.staff_id}`);
-    event.currentTarget.reset();
+    form.reset();
   } catch (error) {
     reportError(error);
   }

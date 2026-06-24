@@ -36,20 +36,16 @@ export async function renderAnalytics(container) {
         <div class="section-body">${renderBarList(typeRows, "type")}</div>
       </article>
       <article class="page-section span-12">
-        <div class="section-header">
-          <div><h2>Zone workload</h2><p>Grouped by parcel_ref.zone_id when present in backend records.</p></div>
-          <button class="button secondary" id="exportAnalytics" type="button">Export JSON</button>
-        </div>
         <div class="section-body">
           ${renderTable({
-            rows: zoneRows,
-            empty: "No zone data is available in application parcel references.",
-            columns: [
-              { label: "Zone", render: (row) => escapeHtml(row.zone) },
-              { label: "Applications", render: (row) => escapeHtml(row.count) },
-              { label: "Share", render: (row) => `${applications.length ? Math.round((row.count / applications.length) * 100) : 0}%` },
-            ],
-          })}
+    rows: zoneRows,
+    empty: "No zone data is available in application parcel references.",
+    columns: [
+      { label: "Zone", render: (row) => escapeHtml(row.zone) },
+      { label: "Applications", render: (row) => escapeHtml(row.count) },
+      { label: "Share", render: (row) => `${applications.length ? Math.round((row.count / applications.length) * 100) : 0}%` },
+    ],
+  })}
         </div>
       </article>
     </section>

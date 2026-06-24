@@ -1,53 +1,55 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>LRMIS Dashboard</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="./css/variables.css" />
-    <link rel="stylesheet" href="./css/layout.css" />
-    <link rel="stylesheet" href="./css/styles.css" />
-    <link rel="stylesheet" href="./css/components/modal.css" />
-    <link rel="stylesheet" href="./css/components/table.css" />
-    <link rel="stylesheet" href="./css/components/forms.css" />
-    <link rel="stylesheet" href="./css/pages/dashboard.css" />
-    <link rel="stylesheet" href="./css/pages/applications.css" />
-    <link rel="stylesheet" href="./css/pages/maps.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <aside class="sidebar">
-        <a class="brand" href="#dashboard" aria-label="LRMIS dashboard">
-          <span class="brand-mark">LR</span>
-          <span>
-            <strong>LRMIS</strong>
-            <small>Land Registration</small>
-          </span>
-        </a>
-        <nav class="nav" id="mainNav" aria-label="Primary navigation"></nav>
-      </aside>
 
-      <div class="main-shell">
-        <header class="topbar">
-          <button class="icon-button" id="menuToggle" type="button" aria-label="Toggle navigation">
-            <span></span><span></span><span></span>
-          </button>
-          <div>
-            <p class="eyebrow">Land Registration Management Information System</p>
-            <h1 id="pageTitle">Dashboard</h1>
-          </div>
-          <div class="api-pill" id="apiStatus">API: http://127.0.0.1:8000</div>
-        </header>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LRMIS Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="./css/variables.css" />
+  <link rel="stylesheet" href="./css/layout.css" />
+  <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="./css/components/modal.css" />
+  <link rel="stylesheet" href="./css/components/table.css" />
+  <link rel="stylesheet" href="./css/components/forms.css" />
+  <link rel="stylesheet" href="./css/pages/dashboard.css" />
+  <link rel="stylesheet" href="./css/pages/applications.css" />
+  <link rel="stylesheet" href="./css/pages/maps.css" />
+</head>
 
-        <main id="app" class="page-content" tabindex="-1"></main>
-      </div>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#dashboard" aria-label="LRMIS dashboard">
+        <span class="brand-mark">LR</span>
+        <span>
+          <strong>LRMIS</strong>
+          <small>Land Registration</small>
+        </span>
+      </a>
+      <nav class="nav" id="mainNav" aria-label="Primary navigation"></nav>
+    </aside>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <button class="icon-button" id="menuToggle" type="button" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <div>
+          <p class="eyebrow">LRMIS</p>
+          <h1 id="pageTitle">Dashboard</h1>
+        </div>
+      </header>
+
+      <main id="app" class="page-content" tabindex="-1"></main>
     </div>
+  </div>
 
-    <div id="modalRoot"></div>
-    <div id="toastRoot" class="toast-root" aria-live="polite"></div>
+  <div id="modalRoot"></div>
+  <div id="toastRoot" class="toast-root" aria-live="polite"></div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="./js/core/app.js"></script>
-  </body>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="./js/core/app.js"></script>
+</body>
+
 </html>

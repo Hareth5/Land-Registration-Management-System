@@ -31,6 +31,12 @@
   color: var(--color-text);
 }
 
+.form-note {
+  margin: 12px 0 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
 .form-field textarea {
   min-height: 96px;
   resize: vertical;

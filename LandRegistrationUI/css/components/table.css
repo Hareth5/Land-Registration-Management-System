@@ -6,12 +6,12 @@
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 760px;
+  min-width: 680px;
 }
 
 .data-table th,
 .data-table td {
-  padding: 12px 10px;
+  padding: 9px 10px;
   border-bottom: 1px solid var(--color-border);
   text-align: left;
   vertical-align: top;
@@ -19,12 +19,12 @@
 
 .data-table th {
   color: var(--color-muted);
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
 }
 
 .data-table td {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .data-table tr:hover td {

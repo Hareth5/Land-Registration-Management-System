@@ -1,7 +1,7 @@
 import { applicationsApi } from "../api/applicationsApi.js";
 import { APPLICATION_STATUSES, APPLICATION_TYPES, ALLOWED_TRANSITIONS } from "../core/constants.js";
 import { state } from "../core/state.js";
-import { escapeHtml, formatDate, labelize, qs, serializeForm, splitList, statusPill } from "../core/utils.js";
+import { escapeHtml, labelize, qs, serializeForm, splitList, statusPill } from "../core/utils.js";
 import { renderTable } from "../components/table.js";
 import { field, formShell } from "../components/forms.js";
 import { openModal } from "../components/modal.js";
@@ -29,16 +29,14 @@ function draw() {
   root.innerHTML = `
     <section class="page-section">
       <div class="section-header">
-        <div><h2>Applications register</h2><p>Create, filter, inspect, and advance land registration cases.</p></div>
-        <button class="button" id="newApplicationBtn" type="button">New application</button>
+        <div><h2>Applications</h2></div>
+        <button class="button" id="newApplicationBtn" type="button">New</button>
       </div>
       <div class="section-body">
         <form class="filters" id="applicationFilters">
-          <select name="status"><option value="">All statuses</option>${APPLICATION_STATUSES.map((s) => `<option value="${s}">${labelize(s)}</option>`).join("")}</select>
-          <select name="application_type"><option value="">All types</option>${APPLICATION_TYPES.map((s) => `<option value="${s}">${labelize(s)}</option>`).join("")}</select>
-          <input name="sort_field" value="timestamps.submitted_at" aria-label="Sort field" />
-          <select name="sort_order"><option value="-1">Newest first</option><option value="1">Oldest first</option></select>
-          <button class="button secondary" type="submit">Apply</button>
+          <select name="status"><option value="">Status</option>${APPLICATION_STATUSES.map((s) => `<option value="${s}">${labelize(s)}</option>`).join("")}</select>
+          <select name="application_type"><option value="">Type</option>${APPLICATION_TYPES.map((s) => `<option value="${s}">${labelize(s)}</option>`).join("")}</select>
+          <button class="button secondary" type="submit">Filter</button>
         </form>
       </div>
       <div class="section-body">
@@ -46,12 +44,12 @@ function draw() {
           rows: state.applications,
           empty: "No applications match the current filters.",
           columns: [
-            { label: "Application", render: (row) => `<button class="button secondary" data-view-app="${escapeHtml(row.application_id)}" type="button">${escapeHtml(row.application_id)}</button>` },
+            { label: "ID", render: (row) => `<button class="link-button" data-view-app="${escapeHtml(row.application_id)}" type="button">${escapeHtml(row.application_id)}</button>` },
             { label: "Type", render: (row) => escapeHtml(labelize(row.application_type)) },
             { label: "Status", render: (row) => statusPill(row.status) },
+            { label: "Next", render: (row) => renderTransitionButtons(row, "table") },
             { label: "Applicant", render: (row) => escapeHtml(row.applicant_ref?.applicant_id) },
             { label: "Parcel", render: (row) => escapeHtml(row.parcel_ref?.parcel_id || row.parcel_ref?.parcel_number || "Not set") },
-            { label: "Updated", render: (row) => escapeHtml(formatDate(row.timestamps?.updated_at)) },
           ],
         })}
       </div>
@@ -67,21 +65,61 @@ function bind() {
     await loadApplications(serializeForm(event.currentTarget));
     draw();
   });
-  root.addEventListener("click", async (event) => {
+  root.onclick = async (event) => {
     const id = event.target.closest("[data-view-app]")?.dataset.viewApp;
+    const transitionButton = event.target.closest("[data-transition-app]");
     if (id) openApplicationDetail(id);
-  });
+    if (transitionButton) {
+      const { transitionApp, transitionStatus } = transitionButton.dataset;
+      await runAction(() => applicationsApi.transition(transitionApp, transitionStatus), null, `Moved to ${labelize(transitionStatus)}`);
+    }
+  };
+}
+
+function getAllowedTransitions(application) {
+  return ALLOWED_TRANSITIONS[application.status] || application.workflow?.allowed_next || [];
+}
+
+function renderTransitionButtons(application, context = "modal") {
+  const allowed = getAllowedTransitions(application);
+  if (!allowed.length) return `<span class="muted">-</span>`;
+
+  return `
+    <div class="${context === "table" ? "next-actions" : "button-row"}">
+      ${allowed
+        .map(
+          (status) => `
+            <button
+              class="button ${context === "table" ? "compact" : "secondary"}"
+              data-transition-app="${escapeHtml(application.application_id)}"
+              data-transition-status="${escapeHtml(status)}"
+              type="button"
+            >${escapeHtml(labelize(status))}</button>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
 }
 
 function openCreateApplication() {
+  const applicantOptions = getApplicantOptions();
+  const parcelOptions = getParcelOptions();
+  const canCreate = applicantOptions.length > 0 && parcelOptions.length > 0;
   const modal = openModal({
     title: "Create application",
-    body: formShell("createApplicationForm", [
-      field({ label: "Application type", name: "application_type", options: APPLICATION_TYPES, required: true }),
-      field({ label: "Applicant ID", name: "applicant_id", required: true }),
-      field({ label: "Parcel ID", name: "parcel_id", required: true }),
-    ], "Create application"),
+    body: `
+      ${formShell("createApplicationForm", [
+        field({ label: "Type", name: "application_type", options: APPLICATION_TYPES, required: true }),
+        field({ label: "Applicant", name: "applicant_id", options: applicantOptions.length ? applicantOptions : [{ value: "", label: "No applicants found", disabled: true }], required: true }),
+        field({ label: "Parcel", name: "parcel_id", options: parcelOptions.length ? parcelOptions : [{ value: "", label: "No parcels found", disabled: true }], required: true }),
+      ], "Create")}
+      ${canCreate ? "" : `<p class="form-note">Create or load records first. The backend has no applicant or parcel list endpoint, so these lists come from existing applications.</p>`}
+    `,
   });
+  if (!canCreate) {
+    qs("#createApplicationForm button[type='submit']", modal.root).disabled = true;
+  }
   qs("#createApplicationForm", modal.root).addEventListener("submit", async (event) => {
     event.preventDefault();
     try {
@@ -95,11 +133,40 @@ function openCreateApplication() {
   });
 }
 
+function getApplicantOptions() {
+  const seen = new Map();
+  state.applications.forEach((application) => {
+    const ref = application.applicant_ref || {};
+    const id = ref.applicant_id;
+    if (!id || seen.has(id)) return;
+    const name = ref.full_name || ref.name || ref.applicant_name;
+    seen.set(id, {
+      value: id,
+      label: name ? `${name} (${id})` : `Applicant ${id}`,
+    });
+  });
+  return [...seen.values()];
+}
+
+function getParcelOptions() {
+  const seen = new Map();
+  state.applications.forEach((application) => {
+    const ref = application.parcel_ref || {};
+    const id = ref.parcel_id;
+    if (!id || seen.has(id)) return;
+    const parts = [ref.parcel_number, ref.block_number && `Block ${ref.block_number}`, ref.basin_number && `Basin ${ref.basin_number}`, ref.zone_id && `Zone ${ref.zone_id}`].filter(Boolean);
+    seen.set(id, {
+      value: id,
+      label: parts.length ? `${parts.join(" - ")} (${id})` : `Parcel ${id}`,
+    });
+  });
+  return [...seen.values()];
+}
+
 async function openApplicationDetail(applicationId) {
   try {
     const app = await applicationsApi.get(applicationId);
     state.selectedApplication = app;
-    const allowed = ALLOWED_TRANSITIONS[app.status] || app.workflow?.allowed_next || [];
     const docs = app.required_documents || [];
     const notes = app.internal?.notes || [];
     const modal = openModal({
@@ -110,34 +177,37 @@ async function openApplicationDetail(applicationId) {
           <div><dt>Type</dt><dd>${escapeHtml(labelize(app.application_type))}</dd></div>
           <div><dt>Applicant</dt><dd>${escapeHtml(app.applicant_ref?.applicant_id)}</dd></div>
           <div><dt>Parcel</dt><dd>${escapeHtml(app.parcel_ref?.parcel_id || "Not set")}</dd></div>
-          <div><dt>Zone</dt><dd>${escapeHtml(app.parcel_ref?.zone_id || "Missing from backend record")}</dd></div>
-          <div><dt>Updated</dt><dd>${escapeHtml(formatDate(app.timestamps?.updated_at))}</dd></div>
+          <div><dt>Zone</dt><dd>${escapeHtml(app.parcel_ref?.zone_id || "-")}</dd></div>
         </dl>
-        <hr />
-        <div class="workflow-actions">
+        <div class="detail-block workflow-panel">
+          <h3>Change status</h3>
+          ${renderTransitionButtons(app)}
+        </div>
+        <div class="detail-block">
+          <h3>Actions</h3>
           <div class="button-row">
-            ${allowed.map((status) => `<button class="button secondary" data-transition="${status}" type="button">Move to ${labelize(status)}</button>`).join("") || `<span class="muted">No standard transition is available from this status.</span>`}
-          </div>
-          <div class="button-row">
-            <button class="button secondary" data-action="note" type="button">Add note</button>
-            <button class="button warning" data-action="missing" type="button">Missing documents</button>
-            <button class="button warning" data-action="hold" type="button">Place on hold</button>
-            <button class="button warning" data-action="objection" type="button">Record objection</button>
+            <button class="button secondary" data-action="note" type="button">Note</button>
+            <button class="button warning" data-action="missing" type="button">Missing docs</button>
+            <button class="button warning" data-action="hold" type="button">Hold</button>
+            <button class="button warning" data-action="objection" type="button">Objection</button>
             <button class="button danger" data-action="reject" type="button">Reject</button>
-            <button class="button" data-action="certificate" type="button">Issue certificate</button>
+            <button class="button" data-action="certificate" type="button">Certificate</button>
           </div>
         </div>
         <h3>Documents</h3>
-        <div class="document-chips">${docs.length ? docs.map((doc) => `<span class="document-chip">${escapeHtml(labelize(doc.document_type))}: ${escapeHtml(labelize(doc.status))}</span>`).join("") : `<span class="muted">No document records are exposed for this application.</span>`}</div>
+        <div class="document-chips">${docs.length ? docs.map((doc) => `<span class="document-chip">${escapeHtml(labelize(doc.document_type))}: ${escapeHtml(labelize(doc.status))}</span>`).join("") : `<span class="muted">No documents</span>`}</div>
         <h3>Notes</h3>
-        <ul class="timeline">${notes.length ? notes.map((note) => `<li>${escapeHtml(note.note || note)}</li>`).join("") : `<li>No notes recorded.</li>`}</ul>
+        <ul class="timeline">${notes.length ? notes.map((note) => `<li>${escapeHtml(note.note || note)}</li>`).join("") : `<li>No notes</li>`}</ul>
       `,
     });
 
     modal.root.addEventListener("click", async (event) => {
-      const transition = event.target.closest("[data-transition]")?.dataset.transition;
+      const transitionButton = event.target.closest("[data-transition-app]");
       const action = event.target.closest("[data-action]")?.dataset.action;
-      if (transition) await runAction(() => applicationsApi.transition(app.application_id, transition), modal, `Moved to ${labelize(transition)}`);
+      if (transitionButton) {
+        const { transitionApp, transitionStatus } = transitionButton.dataset;
+        await runAction(() => applicationsApi.transition(transitionApp, transitionStatus), modal, `Moved to ${labelize(transitionStatus)}`);
+      }
       if (action) await handleApplicationAction(action, app.application_id, modal);
     });
   } catch (error) {
@@ -178,7 +248,7 @@ async function runAction(action, modal, message) {
   try {
     await action();
     notify(message);
-    modal.close();
+    modal?.close();
     await renderApplications(root);
   } catch (error) {
     reportError(error);

@@ -1,4 +1,4 @@
-import { API_CONFIG, ROUTES } from "./config.js";
+import { ROUTES } from "./config.js";
 import { qs } from "./utils.js";
 import { renderNav } from "../components/navigation.js";
 import { renderDashboard } from "../pages/dashboardPage.js";
@@ -28,7 +28,6 @@ async function renderRoute() {
   const routeId = currentRoute();
   const route = ROUTES.find((item) => item.id === routeId);
   qs("#pageTitle").textContent = route?.title || "Dashboard";
-  qs("#apiStatus").textContent = `API: ${API_CONFIG.BASE_URL}`;
   renderNav(routeId);
   document.body.classList.remove("nav-open");
   await pages[routeId](qs("#app"));

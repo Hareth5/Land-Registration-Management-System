@@ -1,6 +1,28 @@
 .workflow-actions {
   display: grid;
-  gap: 14px;
+  gap: 10px;
+}
+
+.detail-block {
+  margin-top: 16px;
+}
+
+.workflow-panel {
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface-2);
+}
+
+.detail-block h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.next-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .document-chips {
@@ -10,9 +32,9 @@
 }
 
 .document-chip {
-  padding: 7px 9px;
+  padding: 5px 8px;
   border: 1px solid var(--color-border);
   border-radius: 999px;
   background: var(--color-surface-2);
-  font-size: 13px;
+  font-size: 12px;
 }

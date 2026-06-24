@@ -1,13 +1,13 @@
 import { applicationsApi } from "../api/applicationsApi.js";
 import { renderTable } from "../components/table.js";
 import { reportError } from "../components/notifications.js";
-import { groupBy, statusPill, escapeHtml, formatDate } from "../core/utils.js";
+import { groupBy, statusPill, escapeHtml } from "../core/utils.js";
 import { state } from "../core/state.js";
 
 export async function renderDashboard(container) {
-  container.innerHTML = `<div class="empty-state">Loading operational dashboard...</div>`;
+  container.innerHTML = `<div class="empty-state">Loading...</div>`;
   try {
-    state.applications = await applicationsApi.list({ limit: 100, sort_field: "timestamps.submitted_at", sort_order: -1 });
+    state.applications = await applicationsApi.list({ limit: 100 });
   } catch (error) {
     reportError(error);
   }
@@ -19,23 +19,23 @@ export async function renderDashboard(container) {
 
   container.innerHTML = `
     <section class="kpi-grid">
-      <div class="kpi"><span>Total applications</span><strong>${apps.length}</strong></div>
-      <div class="kpi"><span>Pending workload</span><strong>${pending}</strong></div>
+      <div class="kpi"><span>Applications</span><strong>${apps.length}</strong></div>
+      <div class="kpi"><span>Pending</span><strong>${pending}</strong></div>
       <div class="kpi"><span>Approved</span><strong>${byStatus.approved?.length || 0}</strong></div>
-      <div class="kpi"><span>Certificates issued</span><strong>${byStatus.certificate_issued?.length || 0}</strong></div>
+      <div class="kpi"><span>Certificates</span><strong>${byStatus.certificate_issued?.length || 0}</strong></div>
     </section>
 
     <section class="module-strip">
-      <article class="module-card"><h3>Land applications</h3><p>Create applications, inspect details, transition statuses, add notes, hold, reject, and issue certificates.</p></article>
-      <article class="module-card"><h3>Applicant portal</h3><p>Create applicant profiles, fetch applicant details, and review applications tied to an applicant ID.</p></article>
-      <article class="module-card"><h3>Survey assignment</h3><p>Create staff records, auto-assign surveyors, advance milestones, upload reports, and record registrar review.</p></article>
-      <article class="module-card"><h3>Analytics and maps</h3><p>Visualize application mix, status distribution, zones, and parcel references from available application data.</p></article>
+      <article class="module-card"><h3>Applications</h3><p>Registration cases and certificates.</p></article>
+      <article class="module-card"><h3>Applicants</h3><p>Citizen and representative profiles.</p></article>
+      <article class="module-card"><h3>Survey</h3><p>Surveyors, reports, and registrar review.</p></article>
+      <article class="module-card"><h3>Maps</h3><p>Zones and application locations.</p></article>
     </section>
 
     <section class="page-section">
       <div class="section-header">
-        <div><h2>Recent applications</h2><p>Latest records returned by the backend application list endpoint.</p></div>
-        <a class="button secondary" href="#applications">Open applications</a>
+        <div><h2>Recent applications</h2></div>
+        <a class="button secondary" href="#applications">Open</a>
       </div>
       <div class="section-body">
         ${renderTable({
@@ -46,7 +46,6 @@ export async function renderDashboard(container) {
             { label: "Type", render: (row) => escapeHtml(row.application_type?.replaceAll("_", " ")) },
             { label: "Status", render: (row) => statusPill(row.status) },
             { label: "Applicant", render: (row) => escapeHtml(row.applicant_ref?.applicant_id) },
-            { label: "Updated", render: (row) => escapeHtml(formatDate(row.timestamps?.updated_at)) },
           ],
         })}
       </div>

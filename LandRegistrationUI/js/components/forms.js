@@ -8,7 +8,12 @@ export function field({ label, name, type = "text", value = "", options = null, 
       <div class="${className}">
         <label for="${name}">${escapeHtml(label)}</label>
         <select id="${name}" name="${name}" ${requiredAttr}>
-          ${options.map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option.replaceAll("_", " "))}</option>`).join("")}
+          ${options.map((option) => {
+            const value = typeof option === "object" ? option.value : option;
+            const text = typeof option === "object" ? option.label : String(option).replaceAll("_", " ");
+            const disabled = typeof option === "object" && option.disabled ? "disabled" : "";
+            return `<option value="${escapeHtml(value)}" ${disabled}>${escapeHtml(text)}</option>`;
+          }).join("")}
         </select>
       </div>
     `;
