@@ -1,0 +1,27 @@
+.quick-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.quick-link {
+  display: block;
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.quick-link strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-primary);
+}
+
+.quick-link span {
+  color: var(--color-muted);
+  font-size: 14px;
+}

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Management</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <h1>Staff Management</h1>
+        <p>Create surveyor or registrar staff members and view staff profiles.</p>
+      </header>
+
+      <div id="message" class="message-box"></div>
+
+      <div class="grid-2">
+        <section class="card">
+          <h2>Create Staff</h2>
+          <form id="createStaffForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="staffCode">Staff Code</label>
+                <input id="staffCode" type="text" placeholder="SURV-RM-04" required>
+              </div>
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input id="name" type="text" placeholder="Survey Team A" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" required>
+                  <option value="surveyor">Surveyor</option>
+                  <option value="registrar">Registrar</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="department">Department</label>
+                <input id="department" type="text" placeholder="Cadastral Survey" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="skills">Skills</label>
+              <input id="skills" type="text" placeholder="boundary_survey, gps_mapping" required>
+            </div>
+
+            <div class="form-group">
+              <label for="zones">Coverage Zones</label>
+              <input id="zones" type="text" placeholder="ZONE-RM-01, ZONE-RM-02" required>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="phone">Phone</label>
+                <input id="phone" type="text" placeholder="+970599111111" required>
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" type="email" placeholder="survey_a@example.com" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="activeTasks">Active Tasks</label>
+                <input id="activeTasks" type="number" min="0" value="0" required>
+              </div>
+              <div class="form-group">
+                <label for="maxTasks">Max Tasks</label>
+                <input id="maxTasks" type="number" min="1" value="10" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>
+                <input id="active" type="checkbox" checked style="width:auto;">
+                Active staff member
+              </label>
+            </div>
+
+            <button class="btn btn-primary btn-full" type="submit">Create Staff</button>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2>Staff Profile</h2>
+          <form id="getStaffForm">
+            <div class="form-group">
+              <label for="staffId">Staff ID</label>
+              <input id="staffId" type="text" placeholder="675100000000000000000301" required>
+            </div>
+            <button class="btn btn-secondary btn-full" type="submit">Load Staff Profile</button>
+          </form>
+
+          <div id="staffProfile" class="details-box" style="display:none;">
+            <div><strong>Name:</strong> <span id="profileName">-</span></div>
+            <div><strong>Staff Code:</strong> <span id="profileCode">-</span></div>
+            <div><strong>Role:</strong> <span id="profileRole">-</span></div>
+            <div><strong>Department:</strong> <span id="profileDepartment">-</span></div>
+            <div><strong>Email:</strong> <span id="profileEmail">-</span></div>
+            <div><strong>Phone:</strong> <span id="profilePhone">-</span></div>
+            <div><strong>Skills:</strong> <span id="profileSkills">-</span></div>
+            <div><strong>Zones:</strong> <span id="profileZones">-</span></div>
+            <div><strong>Workload:</strong> <span id="profileWorkload">-</span></div>
+            <div><strong>Status:</strong> <span id="profileActive">-</span></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/core/config.js"></script>
+  <script src="../js/api/staffApi.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../js/components/ui.js"></script>
+  <script src="../js/pages/staffPage.js"></script>
+</body>
+</html>

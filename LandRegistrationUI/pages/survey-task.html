@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Survey Milestones</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <h1>Survey Milestones</h1>
+        <p>Update the current milestone for an assigned field survey task.</p>
+      </header>
+
+      <div id="message" class="message-box"></div>
+
+      <section class="card">
+        <h2>Add Milestone</h2>
+        <form id="milestoneForm">
+          <div class="form-group">
+            <label for="applicationId">Application ID</label>
+            <input id="applicationId" type="text" placeholder="LRMIS-2026-0001" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="milestoneType">Milestone Type</label>
+              <select id="milestoneType" required>
+                <option value="visit_scheduled">Visit Scheduled</option>
+                <option value="arrived_on_site">Arrived On Site</option>
+                <option value="survey_started">Survey Started</option>
+                <option value="survey_completed">Survey Completed</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="by">Updated By</label>
+              <select id="by" required>
+                <option value="surveyor">Surveyor</option>
+                <option value="system">System</option>
+                <option value="registrar">Registrar</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="meta">Additional Details</label>
+            <textarea id="meta" placeholder='Optional JSON, example: {"scheduled_date":"2026-02-05"}'></textarea>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Save Milestone</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/core/config.js"></script>
+  <script src="../js/api/assignmentsApi.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../js/components/ui.js"></script>
+  <script src="../js/pages/surveyTaskPage.js"></script>
+</body>
+</html>

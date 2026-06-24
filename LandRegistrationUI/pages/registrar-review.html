@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar Review</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <h1>Registrar Review</h1>
+        <p>Submit the registrar decision after reviewing the survey report.</p>
+      </header>
+
+      <div id="message" class="message-box"></div>
+
+      <section class="card">
+        <h2>Review Decision</h2>
+        <form id="registrarReviewForm">
+          <div class="form-group">
+            <label for="applicationId">Application ID</label>
+            <input id="applicationId" type="text" placeholder="LRMIS-2026-0001" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reviewedBy">Reviewed By</label>
+              <input id="reviewedBy" type="text" placeholder="staff_14" required>
+            </div>
+            <div class="form-group">
+              <label for="decision">Decision</label>
+              <select id="decision" required>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="needs_correction">Needs Correction</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Notes</label>
+            <textarea id="notes" placeholder="Registrar notes..." required></textarea>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Submit Review</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/core/config.js"></script>
+  <script src="../js/api/assignmentsApi.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../js/components/ui.js"></script>
+  <script src="../js/pages/registrarReviewPage.js"></script>
+</body>
+</html>

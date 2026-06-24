@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Survey Report</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <h1>Survey Report</h1>
+        <p>Register survey report metadata after field survey completion.</p>
+      </header>
+
+      <div id="message" class="message-box"></div>
+
+      <section class="card">
+        <h2>Register Report</h2>
+
+        <form id="surveyReportForm">
+          <div class="form-group">
+            <label for="applicationId">Application ID</label>
+            <input id="applicationId" type="text" placeholder="LRMIS-2026-0001" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="uploadedBy">Uploaded By</label>
+              <input id="uploadedBy" type="text" placeholder="675100000000000000000301" required>
+            </div>
+
+            <div class="form-group">
+              <label for="reportTitle">Report Title</label>
+              <input id="reportTitle" type="text" placeholder="Boundary Survey Report" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="summary">Summary</label>
+            <textarea id="summary" placeholder="Survey completed and parcel boundaries verified." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="fileName">File Name</label>
+            <input id="fileName" type="text" placeholder="survey-report.pdf" required>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Register Report</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/core/config.js"></script>
+  <script src="../js/api/assignmentsApi.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../js/components/ui.js"></script>
+  <script src="../js/pages/surveyReportPage.js"></script>
+</body>
+
+</html>

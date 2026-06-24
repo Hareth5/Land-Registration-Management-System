@@ -1,0 +1,28 @@
+# Environment Variables
+LandRegistrationAPI/.env
+
+# Python
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environments
+**/venv/
+**/.venv/
+
+# Uploads
+LandRegistrationAPI/uploads/
+
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# Logs
+*.log
+
+# OS Files
+.DS_Store
+Thumbs.db

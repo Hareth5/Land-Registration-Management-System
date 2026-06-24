@@ -1,0 +1,20 @@
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 18px;
+}
+
+.card h2 {
+  margin: 0 0 14px;
+  font-size: 20px;
+}
+
+.card-note {
+  color: var(--color-muted);
+  font-size: 14px;
+  margin-top: -6px;
+  margin-bottom: 14px;
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LRMIS Survey Module</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <h1>Surveyors, Registrar, and Assignment</h1>
+        <p>Manage staff, survey assignments, field milestones, reports, and registrar decisions.</p>
+      </header>
+
+      <section class="quick-links">
+        <a class="quick-link" href="pages/staff.html">
+          <strong>Staff Management</strong>
+          <span>Create staff members and view staff profiles.</span>
+        </a>
+        <a class="quick-link" href="pages/auto-assignment.html">
+          <strong>Auto Assignment</strong>
+          <span>Assign available surveyors to survey-required applications.</span>
+        </a>
+        <a class="quick-link" href="pages/survey-task.html">
+          <strong>Survey Milestones</strong>
+          <span>Update field visit and survey execution milestones.</span>
+        </a>
+        <a class="quick-link" href="pages/survey-report.html">
+          <strong>Survey Reports</strong>
+          <span>Register uploaded survey report metadata.</span>
+        </a>
+        <a class="quick-link" href="pages/registrar-review.html">
+          <strong>Registrar Review</strong>
+          <span>Submit registrar decisions after survey report review.</span>
+        </a>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/core/config.js"></script>
+  <script src="js/components/layout.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () { renderLayout("home"); });</script>
+</body>
+
+</html>

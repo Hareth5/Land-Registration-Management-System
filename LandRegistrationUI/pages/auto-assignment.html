@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto Assignment</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside id="sidebar" class="sidebar"></aside>
+
+    <main class="main-content">
+      <header class="page-header">
+        <h1>Auto Assignment</h1>
+        <p>Assign a suitable surveyor to an application that requires field survey.</p>
+      </header>
+
+      <div id="message" class="message-box"></div>
+
+      <section class="card">
+        <h2>Assign Surveyor</h2>
+        <form id="autoAssignForm">
+          <div class="form-group">
+            <label for="applicationId">Application ID</label>
+            <input id="applicationId" type="text" placeholder="LRMIS-2026-0001" required>
+          </div>
+          <button class="btn btn-primary" type="submit">Assign Surveyor</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/core/config.js"></script>
+  <script src="../js/api/assignmentsApi.js"></script>
+  <script src="../js/components/layout.js"></script>
+  <script src="../js/components/ui.js"></script>
+  <script src="../js/pages/autoAssignmentPage.js"></script>
+</body>
+</html>
