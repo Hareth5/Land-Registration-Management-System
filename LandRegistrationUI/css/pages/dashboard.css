@@ -4,6 +4,30 @@
   gap: 16px;
 }
 
+.module-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.module-card {
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.module-card h3 {
+  margin: 0 0 8px;
+}
+
+.module-card p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
 .quick-link {
   display: block;
   background: var(--color-surface);

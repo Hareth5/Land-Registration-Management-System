@@ -104,3 +104,4 @@ def count(
         return collection.count_documents(filter_dict or {})
 
     except Exception as e:
+        raise Exception(f"CRUD Count Error: {str(e)}")
