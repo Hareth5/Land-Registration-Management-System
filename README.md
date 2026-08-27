@@ -129,6 +129,6 @@ Make sure MongoDB is running and your `.env` configuration is correct before sta
 
 ## Team Members
 
-- [ElyasNajeh](https://github.com/ElyasNajeh)
+- [ElyasNajeh](https://github.com/ElyasNajeh) (Team leader)
 - [Hareth5](https://github.com/Hareth5)
 - [Ahmad-Omaryeh](https://github.com/Ahmad-Omaryeh)
