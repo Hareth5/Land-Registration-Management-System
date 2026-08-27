@@ -1,20 +1,22 @@
-from datetime import datetime
+from datetime import datetime, timezone
+
+from fastapi import HTTPException
 
 from app.database.mongo import db
-
 from app.shared.crud import (
     create,
-    get_one,
     get_many,
+    get_one,
     update_one,
 )
-from .log_service import create_log
+from app.shared.serialization import serialize_mongo
 
 from ..enums import (
     ApplicationStatus,
 )
-
+from .log_service import create_log
 from .workflow_service import (
+    ALLOWED_TRANSITIONS,
     validate_transition,
 )
 
@@ -24,17 +26,16 @@ certificates_collection = db["certificates"]
 
 
 def serialize_document(document):
-
-    document["_id"] = str(document["_id"])
-
-    return document
+    return serialize_mongo(document)
 
 
 def generate_application_id():
 
     total = applications_collection.count_documents({})
 
-    return f"LRMIS-2026-{total + 1:04d}"
+    year = datetime.now(timezone.utc).year
+
+    return f"LRMIS-{year}-{total + 1:04d}"
 
 
 def create_application(data):
@@ -59,15 +60,15 @@ def create_application(data):
         },
         "required_documents": [],
         "timestamps": {
-            "submitted_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow(),
+            "submitted_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc),
         },
         "internal": {
             "notes": [],
         },
     }
 
-    inserted_id = create(
+    create(
         applications_collection,
         application,
     )
@@ -87,10 +88,10 @@ def get_application(application_id):
     )
 
     if application:
+        application = serialize_document(application)
+        return application
 
-        application["_id"] = str(application["_id"])
-
-    return application
+    raise HTTPException(status_code=404, detail="Application not found")
 
 
 def get_applications(
@@ -110,11 +111,7 @@ def get_applications(
         sort_order,
     )
 
-    for application in applications:
-
-        application["_id"] = str(application["_id"])
-
-    return applications
+    return [serialize_document(application) for application in applications]
 
 
 def transition_application(
@@ -123,12 +120,12 @@ def transition_application(
 ):
     application = get_one(applications_collection, {"application_id": application_id})
     if not application:
-        raise Exception("Application not found")
+        raise HTTPException(status_code=404, detail="Application not found")
 
-    validate_transition(
-        application,
-        new_status,
-    )
+    try:
+        validate_transition(application, new_status)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     application = update_one(
         applications_collection,
@@ -136,7 +133,8 @@ def transition_application(
         {
             "status": new_status,
             "workflow.current_state": new_status,
-            "timestamps.updated_at": datetime.utcnow(),
+            "workflow.allowed_next": ALLOWED_TRANSITIONS.get(new_status, []),
+            "timestamps.updated_at": datetime.now(timezone.utc),
         },
     )
 
@@ -159,8 +157,7 @@ def hold_application(
     application = get_one(applications_collection, {"application_id": application_id})
 
     if not application:
-
-        raise Exception("Application not found")
+        raise HTTPException(status_code=404, detail="Application not found")
 
     application = update_one(
         applications_collection,
@@ -168,8 +165,9 @@ def hold_application(
         {
             "status": ApplicationStatus.ON_HOLD,
             "workflow.current_state": ApplicationStatus.ON_HOLD,
+            "workflow.allowed_next": [],
             "hold_reason": reason,
-            "timestamps.updated_at": datetime.utcnow(),
+            "timestamps.updated_at": datetime.now(timezone.utc),
         },
     )
     create_log(
@@ -189,14 +187,12 @@ def reject_application(
 ):
 
     if not reason:
-
-        raise Exception("Rejection reason is required")
+        raise HTTPException(status_code=400, detail="Rejection reason is required")
 
     application = get_one(applications_collection, {"application_id": application_id})
 
     if not application:
-
-        raise Exception("Application not found")
+        raise HTTPException(status_code=404, detail="Application not found")
 
     application = update_one(
         applications_collection,
@@ -204,8 +200,9 @@ def reject_application(
         {
             "status": ApplicationStatus.REJECTED,
             "workflow.current_state": ApplicationStatus.REJECTED,
+            "workflow.allowed_next": [],
             "rejection_reason": reason,
-            "timestamps.updated_at": datetime.utcnow(),
+            "timestamps.updated_at": datetime.now(timezone.utc),
         },
     )
     create_log(
@@ -231,17 +228,18 @@ def generate_certificate(
     )
 
     if not application:
-
-        raise Exception("Application not found")
+        raise HTTPException(status_code=404, detail="Application not found")
 
     if application["status"] != ApplicationStatus.APPROVED:
-
-        raise Exception("Application must be approved before issuing a certificate")
+        raise HTTPException(
+            status_code=400,
+            detail="Application must be approved before issuing a certificate",
+        )
 
     certificate = {
         "certificate_id": f"CERT-{application_id}",
         "application_id": application_id,
-        "issued_at": datetime.utcnow(),
+        "issued_at": datetime.now(timezone.utc),
     }
 
     create(
@@ -257,8 +255,11 @@ def generate_certificate(
         {
             "status": ApplicationStatus.CERTIFICATE_ISSUED,
             "workflow.current_state": ApplicationStatus.CERTIFICATE_ISSUED,
+            "workflow.allowed_next": ALLOWED_TRANSITIONS.get(
+                ApplicationStatus.CERTIFICATE_ISSUED, []
+            ),
             "certificate_id": certificate["certificate_id"],
-            "timestamps.updated_at": datetime.utcnow(),
+            "timestamps.updated_at": datetime.now(timezone.utc),
         },
     )
     create_log(
@@ -269,7 +270,7 @@ def generate_certificate(
         },
     )
 
-    return certificate
+    return serialize_document(certificate)
 
 
 def add_note(
@@ -285,13 +286,13 @@ def add_note(
     )
 
     if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
 
-        raise Exception("Application not found")
-
-    application["internal"]["notes"].append(
+    notes = application.get("internal", {}).get("notes", [])
+    notes.append(
         {
             "note": note,
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(timezone.utc),
         }
     )
 
@@ -301,7 +302,7 @@ def add_note(
             "application_id": application_id,
         },
         {
-            "internal.notes": application["internal"]["notes"],
+            "internal.notes": notes,
         },
     )
 
@@ -331,8 +332,7 @@ def mark_missing_documents(
     )
 
     if not application:
-
-        raise Exception("Application not found")
+        raise HTTPException(status_code=404, detail="Application not found")
 
     application = update_one(
         applications_collection,
@@ -342,8 +342,9 @@ def mark_missing_documents(
         {
             "status": ApplicationStatus.MISSING_DOCUMENTS,
             "workflow.current_state": ApplicationStatus.MISSING_DOCUMENTS,
+            "workflow.allowed_next": [],
             "missing_documents": documents,
-            "timestamps.updated_at": datetime.utcnow(),
+            "timestamps.updated_at": datetime.now(timezone.utc),
         },
     )
 
@@ -373,8 +374,7 @@ def mark_under_objection(
     )
 
     if not application:
-
-        raise Exception("Application not found")
+        raise HTTPException(status_code=404, detail="Application not found")
 
     application = update_one(
         applications_collection,
@@ -384,8 +384,9 @@ def mark_under_objection(
         {
             "status": ApplicationStatus.UNDER_OBJECTION,
             "workflow.current_state": ApplicationStatus.UNDER_OBJECTION,
+            "workflow.allowed_next": [],
             "objection_reason": reason,
-            "timestamps.updated_at": datetime.utcnow(),
+            "timestamps.updated_at": datetime.now(timezone.utc),
         },
     )
 

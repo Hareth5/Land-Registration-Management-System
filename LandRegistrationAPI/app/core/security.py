@@ -1,7 +1,8 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import HTTPException, Request
+from jose import JWTError, jwt
 from passlib.context import CryptContext
-from datetime import datetime, timedelta
-from jose import jwt, JWTError
 
 from app.core.config import settings
 
@@ -17,19 +18,29 @@ def verify_password(password: str, hash_password: str):
 
 
 def create_token(data: dict, expires_delta: timedelta):
+    if settings.SECRET_KEY is None:
+        raise RuntimeError("SECRET_KEY must be configured before creating tokens")
+
     to_encode = data.copy()
-    expire = datetime.utcnow() + expires_delta
+    expire = datetime.now(timezone.utc) + expires_delta
     to_encode.update({"exp": expire})
     encode_jwt = jwt.encode(
-        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+        to_encode,
+        settings.SECRET_KEY.get_secret_value(),
+        algorithm=settings.ALGORITHM,
     )
     return encode_jwt
 
 
 def verify_token(token: str):
+    if settings.SECRET_KEY is None:
+        return None
+
     try:
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            token,
+            settings.SECRET_KEY.get_secret_value(),
+            algorithms=[settings.ALGORITHM],
         )
         email = payload.get("sub")
         if email is None:

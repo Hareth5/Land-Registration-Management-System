@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.database.mongo import db
 from app.shared.crud import create
@@ -12,7 +12,7 @@ def create_log(application_id, action, details=None):
         "application_id": application_id,
         "action": action,
         "details": details,
-        "created_at": datetime.utcnow(),
+        "created_at": datetime.now(timezone.utc),
     }
 
     return create(

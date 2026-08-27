@@ -20,8 +20,15 @@ http
     let pathname = decodeURIComponent(req.url.split("?")[0]);
     if (pathname === "/" || pathname === "") pathname = "/index.html";
 
-    const filePath = path.normalize(path.join(root, pathname));
-    if (!filePath.startsWith(root)) {
+    if (pathname === "/runtime-config.js") {
+      const runtimeConfig = `globalThis.LRMIS_API_BASE_URL = ${JSON.stringify(process.env.API_BASE_URL || "")};`;
+      res.writeHead(200, { "Content-Type": "text/javascript; charset=utf-8" });
+      res.end(runtimeConfig);
+      return;
+    }
+
+    const filePath = path.resolve(root, `.${pathname}`);
+    if (filePath !== root && !filePath.startsWith(`${root}${path.sep}`)) {
       res.writeHead(403);
       res.end("Forbidden");
       return;

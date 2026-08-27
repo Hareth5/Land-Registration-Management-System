@@ -1,0 +1,1 @@
+"""Applicant management feature."""

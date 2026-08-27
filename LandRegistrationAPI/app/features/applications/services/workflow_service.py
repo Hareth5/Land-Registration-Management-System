@@ -36,7 +36,7 @@ def validate_transition(
         new_status,
     ):
 
-        raise Exception(
+        raise ValueError(
             f"Invalid transition from " f"{current_status} " f"to " f"{new_status}"
         )
 
@@ -44,10 +44,10 @@ def validate_transition(
 
         if not application.get("applicant_ref"):
 
-            raise Exception("Applicant information is required")
+            raise ValueError("Applicant information is required")
 
         if not application.get("parcel_ref"):
 
-            raise Exception("Parcel information is required")
+            raise ValueError("Parcel information is required")
 
     return True

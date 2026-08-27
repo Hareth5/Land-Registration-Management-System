@@ -1,9 +1,15 @@
-from fastapi import HTTPException
 from datetime import datetime, timezone
 from uuid import uuid4
+
+from fastapi import HTTPException
+
 from app.database.mongo import db
+from app.features.assignments.schemas import (
+    RegistrarReviewRequest,
+    SurveyMilestoneRequest,
+    SurveyReportRequest,
+)
 from app.shared import crud
-from app.features.assignments.schemas import SurveyMilestoneRequest, SurveyReportRequest, RegistrarReviewRequest
 
 land_applications = db["land_applications"]
 staff_members = db["staff_members"]
@@ -23,7 +29,8 @@ def auto_assign_surveyor(application_id: str):
     if application["status"] != "survey_required":
         raise HTTPException(status_code = 400, detail = "Application is not in survey_required stage")
     
-    zone = application["parcel_ref"]["zone_id"]
+    parcel_ref = application.get("parcel_ref", {})
+    zone = parcel_ref.get("zone_id")
     if not zone:
         raise HTTPException(status_code = 400, detail = "Application parcel zone is missing")
     
@@ -31,14 +38,15 @@ def auto_assign_surveyor(application_id: str):
     best_staff = None
     min_tasks = 1e9
     for staff in staffs:
-        if staff["role"] != "surveyor": continue
-        if staff["active"] != True: continue
-        if zone not in staff["coverage"]["zone_ids"]: continue
-        if staff["workload"]["active_tasks"] >= staff["workload"]["max_tasks"] : continue
-        if staff["workload"]["active_tasks"] >= min_tasks: continue
+        workload = staff.get("workload", {})
+        if staff.get("role") != "surveyor": continue
+        if not staff.get("active", False): continue
+        if zone not in staff.get("coverage", {}).get("zone_ids", []): continue
+        if workload.get("active_tasks", 0) >= workload.get("max_tasks", 0): continue
+        if workload.get("active_tasks", 0) >= min_tasks: continue
 
         best_staff = staff
-        min_tasks = staff["workload"]["active_tasks"]
+        min_tasks = workload.get("active_tasks", 0)
 
     if best_staff == None:
         raise HTTPException(status_code = 404, detail = "No available surveyor found for this zone")
@@ -47,7 +55,7 @@ def auto_assign_surveyor(application_id: str):
     document = {
         "task_id" : task_id,
         "application_id" : application_id,
-        "parcel_id" : application["parcel_ref"]["parcel_id"],
+        "parcel_id" : parcel_ref.get("parcel_id"),
         "assigned_surveyor_id" : best_staff["_id"],
         "status" : "assigned",
         "milestones": [
@@ -313,6 +321,7 @@ def registrar_review(application_id: str, review: RegistrarReviewRequest):
 
     application_data = {
     "status": status,
+    "workflow.current_state": status,
     "registrar_review.reviewed_by": review.reviewed_by,
     "registrar_review.decision": decision,
     "registrar_review.notes": review.notes,

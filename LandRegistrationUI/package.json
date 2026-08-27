@@ -1,0 +1,9 @@
+{
+  "name": "land-registration-ui",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static frontend for the Land Registration Management System",
+  "scripts": {
+    "start": "node server.cjs"
+  }
+}

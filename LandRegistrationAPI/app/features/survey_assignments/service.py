@@ -1,9 +1,12 @@
-from fastapi import HTTPException
 from datetime import datetime, timezone
+
 from bson import ObjectId
+from fastapi import HTTPException
+
 from app.database.mongo import db
 from app.features.survey_assignments.schemas import StaffCreate
 from app.shared import crud
+from app.shared.serialization import serialize_mongo
 
 staff_members = db["staff_members"]
 
@@ -26,11 +29,9 @@ def get_staff_by_id(staff_id: str):
     if not ObjectId.is_valid(staff_id):
         raise HTTPException(status_code = 400, detail = "Invalid Staff ID format")
     
-    found = crud.get_one(staff_members, {"_id" : ObjectId(staff_id)})
-    sta
+    found = crud.get_one(staff_members, {"_id": ObjectId(staff_id)})
 
     if not found:
         raise HTTPException( status_code = 404,  detail = "Staff not found")
     
-    found["_id"] = str(found["_id"])
-    return found
+    return serialize_mongo(found)

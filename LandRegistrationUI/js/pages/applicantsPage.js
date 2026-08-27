@@ -20,7 +20,7 @@ export function renderApplicants(container) {
             field({ label: "Phone", name: "phone", required: true }),
             field({ label: "City", name: "city", required: true }),
             field({ label: "Street", name: "street" }),
-            field({ label: "Preferred contact", name: "prefereed_contact", options: ["email", "phone"], required: true }),
+            field({ label: "Preferred contact", name: "preferred_contact", options: ["email", "phone"], required: true }),
             field({ label: "Language", name: "language", value: "ar" }),
           ], "Create applicant")}
         </div>
@@ -51,8 +51,8 @@ async function createApplicant(event) {
     identity: { national_id: raw.national_id },
     contacts: { email: raw.email, phone: raw.phone },
     address: { city: raw.city, street: raw.street || null },
-    preferances: {
-      prefereed_contact: raw.prefereed_contact,
+    preferences: {
+      preferred_contact: raw.preferred_contact,
       language: raw.language || "ar",
       notifications: {
         on_status_change: true,

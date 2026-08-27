@@ -1,19 +1,19 @@
-from fastapi import HTTPException, status
-from bson import ObjectId
 from datetime import datetime, timezone
 
+from bson import ObjectId
+from fastapi import HTTPException, status
+
+from app.database.mongo import db
 from app.shared.crud import (
     create,
     get_many,
     get_one,
 )
 
-from app.database.mongo import db
-
 from .schemas import (
     ApplicantCreate,
-    ApplicationDocumentCreate,
     ApplicationCommentCreate,
+    ApplicationDocumentCreate,
     ApplicationObjectionCreate,
 )
 
@@ -26,6 +26,9 @@ performance_logs_collection = db["performance_logs"]
 
 # this methode to convert to json to best represent
 def serialize_applicant(applicant: dict) -> dict:
+    preferences = applicant.get("preferences") or applicant.get("preferances")
+    stats = applicant.get("stats", {})
+
     return {
         "id": str(applicant["_id"]),
         "full_name": applicant["full_name"],
@@ -33,15 +36,14 @@ def serialize_applicant(applicant: dict) -> dict:
         "identity": applicant["identity"],
         "contacts": applicant["contacts"],
         "address": applicant["address"],
-        "preferences": applicant["preferences"],
-        "stats": applicant.get(
-            "stats",
-            {
-                "total_applications": 0,
-                "approved_applications": 0,
-                "pending_applications": 0,
-            },
-        ),
+        "preferences": preferences,
+        "stats": {
+            "total_applications": stats.get("total_applications", 0),
+            "approved_applications": stats.get("approved_applications", 0),
+            "pending_applications": stats.get(
+                "pending_applications", stats.get("pending_appliations", 0)
+            ),
+        },
         "created_at": applicant.get("created_at"),
     }
 
@@ -73,9 +75,6 @@ def create_applicant_service(applicant: ApplicantCreate):
 
     inserted_id = create(applicants_collection, applicant_dict)
     created_applicant = get_one(applicants_collection, {"_id": inserted_id})
-    # must convert from Objectid to string (json canot understand Objectid)
-    created_applicant["_id"] = str(created_applicant["_id"])
-
     return {
         "message": "Applicant created successfully",
         "applicant": serialize_applicant(created_applicant),
@@ -144,7 +143,7 @@ def get_applicant_applications_service(applicant_id: str) -> dict:
 
     applications = get_many(
         land_applications_collection,
-        {"applicant_ref.applicant_id": applicant_object_id},
+        {"applicant_ref.applicant_id": {"$in": [applicant_id, applicant_object_id]}},
         sort_field="timestamps.submitted_at",
         sort_order=-1,
     )
@@ -183,10 +182,6 @@ def serialize_embedded_application_document(
         "notes": document.get("notes"),
         "uploaded_at": document["uploaded_at"],
     }
-
-
-application = None
-document_dict = None
 
 
 def add_application_document_service(
@@ -499,18 +494,23 @@ def get_application_timeline_service(application_id: str) -> dict:
     notes = internal.get("notes", [])
 
     for note in notes:
+        if isinstance(note, dict):
+            description = note.get("note") or note.get("comment") or str(note)
+            note_time = note.get("created_at")
+        else:
+            description = str(note)
+            note_time = None
+
         add_timeline_event(
             timeline=timeline,
             event_type="note",
             title="Internal note",
-            description=note,
-            at=None,
+            description=description,
+            at=note_time,
             meta={"visibility": internal.get("visibility", "staff_only")},
         )
 
-    timeline.sort(
-        key=lambda event: event["at"] if event["at"] is not None else "", reverse=False
-    )
+    timeline.sort(key=lambda event: (event["at"] is None, event["at"]))
 
     return {
         "application_id": application_id,

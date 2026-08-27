@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Any
-from pydantic import BaseModel
+
+from pydantic import BaseModel, Field
+
 
 class SurveyMilestoneType(str, Enum):
     ASSIGNED = "assigned"
@@ -19,7 +21,7 @@ class MilestoneActor(str, Enum):
 class SurveyMilestoneRequest(BaseModel):
     milestone_type: SurveyMilestoneType
     by: MilestoneActor
-    meta: dict[str, Any] = {}
+    meta: dict[str, Any] = Field(default_factory=dict)
 
 class SurveyReportRequest(BaseModel):
     uploaded_by: str

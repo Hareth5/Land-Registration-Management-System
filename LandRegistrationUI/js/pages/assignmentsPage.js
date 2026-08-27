@@ -27,7 +27,7 @@ export function renderAssignments(container) {
           field({ label: "Uploaded by", name: "uploaded_by", required: true }),
           field({ label: "Report title", name: "report_title", required: true }),
           field({ label: "File name", name: "file_name", required: true }),
-          field({ label: "File path", name: "file_path", required: true, full: true }),
+          field({ label: "File reference", name: "file_path", placeholder: "reports/survey-report.pdf or an HTTPS URL", required: true, full: true }),
           field({ label: "Summary", name: "summary", type: "textarea", required: true, full: true }),
         ], "Upload report")}</div>
       </article>

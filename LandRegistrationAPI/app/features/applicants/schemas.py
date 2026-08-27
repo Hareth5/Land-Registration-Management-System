@@ -1,7 +1,8 @@
-from pydantic import BaseModel, EmailStr, Field
-from typing import Any, List, Optional
 from datetime import datetime
 from enum import Enum
+from typing import Any, List, Optional
+
+from pydantic import AliasChoices, BaseModel, ConfigDict, EmailStr, Field
 
 
 ##this schema for (POST /applicants)
@@ -42,7 +43,12 @@ class Notifications(BaseModel):
 
 
 class Preferences(BaseModel):
-    prefereed_contact: preferredContact = preferredContact.email
+    model_config = ConfigDict(populate_by_name=True)
+
+    preferred_contact: preferredContact = Field(
+        default=preferredContact.email,
+        validation_alias=AliasChoices("preferred_contact", "prefereed_contact"),
+    )
     language: str = "ar"
     notifications: Notifications = Field(default_factory=Notifications)
 
@@ -50,17 +56,21 @@ class Preferences(BaseModel):
 class Stats(BaseModel):
     total_applications: int = 0
     approved_applications: int = 0
-    pending_appliations: int = 0
+    pending_applications: int = 0
 
 
 # request body :
 class ApplicantCreate(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
     full_name: str
     applicant_type: ApplicantType
     identity: Identity
     contacts: Contacts
     address: Address
-    preferances: Preferences
+    preferences: Preferences = Field(
+        validation_alias=AliasChoices("preferences", "preferances")
+    )
 
 
 ##this for end point : GET /applicants/{applicant_id}
@@ -72,7 +82,7 @@ class ApplicantResponse(BaseModel):
     identity: Identity
     contacts: Contacts
     address: Address
-    preferances: Preferences
+    preferences: Preferences
     stats: Stats
     created_at: datetime
 

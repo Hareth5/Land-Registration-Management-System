@@ -1,3 +1,20 @@
+from pymongo.errors import ConfigurationError, ConnectionFailure
+
+
+class DatabaseUnavailableError(RuntimeError):
+    """Raised when MongoDB cannot be reached."""
+
+
+def _raise_crud_error(operation: str, error: Exception) -> None:
+    if isinstance(error, (ConfigurationError, ConnectionFailure)):
+        raise DatabaseUnavailableError(
+            "MongoDB is unavailable or misconfigured. Verify MONGO_URI and the "
+            "Atlas database user and IP access list."
+        ) from error
+
+    raise RuntimeError(f"CRUD {operation} Error: {error}") from error
+
+
 def create(collection, document):
 
     try:
@@ -7,8 +24,7 @@ def create(collection, document):
         return result.inserted_id
 
     except Exception as e:
-
-        raise Exception(f"CRUD Create Error: {str(e)}")
+        _raise_crud_error("Create", e)
 
 
 def get_one(collection, filter_dict):
@@ -18,8 +34,7 @@ def get_one(collection, filter_dict):
         return collection.find_one(filter_dict)
 
     except Exception as e:
-
-        raise Exception(f"CRUD Get One Error: {str(e)}")
+        _raise_crud_error("Get One", e)
 
 
 def get_many(
@@ -44,8 +59,7 @@ def get_many(
         return list(query)
 
     except Exception as e:
-
-        raise Exception(f"CRUD Get Many Error: {str(e)}")
+        _raise_crud_error("Get Many", e)
 
 
 def update_one(
@@ -68,8 +82,7 @@ def update_one(
         return collection.find_one(filter_dict)
 
     except Exception as e:
-
-        raise Exception(f"CRUD Update Error: {str(e)}")
+        _raise_crud_error("Update", e)
 
 
 def delete_one(
@@ -90,8 +103,7 @@ def delete_one(
         return document
 
     except Exception as e:
-
-        raise Exception(f"CRUD Delete Error: {str(e)}")
+        _raise_crud_error("Delete", e)
 
 
 def count(
@@ -104,4 +116,4 @@ def count(
         return collection.count_documents(filter_dict or {})
 
     except Exception as e:
-        raise Exception(f"CRUD Count Error: {str(e)}")
+        _raise_crud_error("Count", e)
