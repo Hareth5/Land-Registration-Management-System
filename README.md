@@ -127,8 +127,25 @@ uvicorn main:app --reload
 
 Make sure MongoDB is running and your `.env` configuration is correct before starting the application.
 
-## Team Members
+# Team & Contributions
+
+This project was developed by a team of three students.
 
 - [ElyasNajeh](https://github.com/ElyasNajeh) (Team leader)
 - [Hareth5](https://github.com/Hareth5)
 - [Ahmad-Omaryeh](https://github.com/Ahmad-Omaryeh)
+
+### My Contribution
+I was fully responsible for the backend implementation of the **Surveyors, Registrar, and Assignment Module** using FastAPI and MongoDB.
+
+My work included:
+- Staff management for surveyors and registrar users.
+- Surveyor coverage zones, skills, schedules, and availability.
+- Automatic surveyor assignment based on zone, availability, workload, skills, priority, and existing assigned tasks.
+- Manual surveyor reassignment.
+- Survey milestone tracking.
+- Survey report metadata handling.
+- Registrar review workflows.
+- Staff-only access control for related endpoints.
+
+The database schema was provided as part of the project specification, and the overall project structure was initially organized by the team leader.
