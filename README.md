@@ -126,3 +126,9 @@ uvicorn main:app --reload
 ```
 
 Make sure MongoDB is running and your `.env` configuration is correct before starting the application.
+
+## Team Members
+
+- [ElyasNajeh](https://github.com/ElyasNajeh) — Elyas Ihmud
+- [Hareth5](https://github.com/Hareth5)
+- [Ahmad-Omaryeh](https://github.com/Ahmad-Omaryeh) — Ahmad Omariyeh
